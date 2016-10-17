@@ -1,0 +1,70 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<script src="UI/libs/jquery.js" type="text/javascript"></script>
+		<script src="UI/libs/jquery.tmpl.min.js" type="text/javascript"></script>
+		<script src="UI/libs/jquery-ui.min.js" type="text/javascript"></script>
+		<link href="UI/libs/jquery-ui.min.css" rel="stylesheet"></link>
+		
+		<script src="libs/lodash.min.js"></script>
+		<script src='libs/anonymousassertion.js'></script>
+		<script src="kore-bot-sdk-client.js"></script>
+		<script src="UI/chatWindow.js" type="text/javascript"></script>
+		<link href="UI/chatWindow.css" rel="stylesheet"></link>
+		<script type="text/javascript">
+		$(document).on("ready",function(){
+			function assertion(options, callback) {
+
+				// Client has to fill the claims and call the callback.
+				$.ajax({
+					url: "https://bots.kore.com/api/users/sts",
+					type: 'post',
+					headers: {
+						Authorization: "bearer xyz------"
+					},
+					dataType: 'json',
+					success: function (data) {
+						options.assertion = data.jwt
+						callback(null, options);
+					}
+				})
+			}
+
+			var botOptions = {};
+			botOptions.logLevel = 'debug';
+			botOptions.koreAPIUrl = "https://pilot-bots.kore.com/api/";
+			botOptions.assertionFn = assertion;
+			botOptions.isLoggedIn = false; // false: triggers anonymus flow. set it to true for log-in flow.
+			/*
+			 Below config:(To support the anonymous user in test environments only.)
+			 Case.1:Anonymous User
+			        a. set it to false if the client defined the assertion for Anonymous User.
+			        b. set it to true if the client have not defined the assertion for Anonymous User.
+			 Case.2:Logged-In User
+			        a. set it to false if the client defined the assertion.
+			*/
+			botOptions.test = true;
+			botOptions.koreAnonymousFn = koreAnonymousFn;
+			botOptions.clientId   = "cs-2dd9ea58-2d22-5061-baae-c30187825f3a"; // secure client-id
+            
+			botOptions.botInfo = {name:"C4C Service","_id":"st-d5a3236f-755e-5b42-86f6-0c0f355e8126"}; // bot name is case sensitive
+			
+			var chatConfig={
+				botOptions:botOptions,
+				allowIframe: true
+			};
+
+			koreBotChat().show(chatConfig);
+			$('.openChatWindow').click(function(){
+				koreBotChat().show(chatConfig);
+			});
+		});
+		</script>
+	</head>
+	<body style="margin:0px;padding:0px">
+	   <img src="C4CServiceHome.png"/>
+		<div id="chatContainer" style="position: top; position: absolute; top: 0px;">
+		<button class="openChatWindow">Open Chat Window</button>
+		</div>
+	</body>
+</html>
